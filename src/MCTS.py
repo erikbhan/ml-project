@@ -66,6 +66,20 @@ class Node():
             _, _, done, _ = rollout_env.step(random_action)
         return rollout_env.reward()
 
+    def __str__(self, level=0):
+        ret = "    "*level
+        if self.action:
+            ret += f"{self.action:02d}: "
+        else:
+            ret += f"00: "
+        ret += repr(self.value) + "\n"
+        for child in self.children:
+            ret += child.__str__(level+1)
+        return ret
+
+    def __repr__(self):
+        return '<tree node representation>'
+
 class Monte_Carlo_Tree_Search():
     def __init__(self, size, ml_model):
         self.env : gym.Env = gym.make('gym_go:go-v0', size=size, reward_method='heuristic')
@@ -197,14 +211,15 @@ class Monte_Carlo_Tree_Search():
         best_child = None
         current_best_value = -inf
         for child in node.children:
+            child_value = child.rollout(self.get_weighted_move)
             if child.value > current_best_value:
                 best_child = child
-                current_best_value = child.value
+                current_best_value = child_value
 
         if best_child != None:
             if len(best_child.children) == 0 and not best_child.env.done:
                 best_child.expansion()
-            return best_child
+        return best_child
 
     # Makes a list of all states and a list of all move_weights for all expanded nodes in the tree
     def get_tree_data(self):

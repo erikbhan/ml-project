@@ -1,8 +1,8 @@
-from gym_go.gogame import turn, random_weighted_action, random_action
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+import numpy as np
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -15,6 +15,7 @@ class CNN(nn.Module):
         self.fc1 = nn.Linear(128, 26)
 
     def forward(self, x):
+        if type(x) == np.ndarray: x = torch.from_numpy(x)
         x = x.float()
         x = x.to(device)
         x = self.pool(F.relu(self.conv1(x)))
