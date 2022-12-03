@@ -214,7 +214,7 @@ class Monte_Carlo_Tree_Search():
     def get_tree_data(self):
         x, y = [], []
         self.__get_node_data(self.root, x, y)
-        return torch.tensor(x), torch.tensor(y)
+        return x, y
 
     # recurrsive tree traversal method for get_tree_data
     def __get_node_data(self, node, x, y):
