@@ -60,13 +60,11 @@ class Node():
             return self.env.reward()
         
         rollout_env = deepcopy(self.env)
-        rollout_result = 0
         done = False
         while not done:
             random_action = move_selection_method(rollout_env)
-            _, reward, done, _ = rollout_env.step(random_action)
-            rollout_result += reward
-        return rollout_result
+            _, _, done, _ = rollout_env.step(random_action)
+        return rollout_env.reward()
 
 class Monte_Carlo_Tree_Search():
     def __init__(self, size, ml_model):
@@ -190,12 +188,10 @@ class Monte_Carlo_Tree_Search():
 
     # Attempts to find the best move from the tree by searching for the state and finding the best child for that state
     def get_move_from_env(self, env):
+        if len(self.root.children) == 0:
+            self.root.expansion()
+
         node = self.__find_node_from_state(env.state())
-
-        while node is None:
-            self.run(15)
-            node = self.__find_node_from_state(env.state())
-
         self.run(15, node)
 
         best_child = None
