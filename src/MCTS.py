@@ -60,13 +60,25 @@ class Node():
             return self.env.reward()
         
         rollout_env = deepcopy(self.env)
-        rollout_result = 0
         done = False
         while not done:
             random_action = move_selection_method(rollout_env)
-            _, reward, done, _ = rollout_env.step(random_action)
-            rollout_result += reward
-        return rollout_result
+            _, _, done, _ = rollout_env.step(random_action)
+        return rollout_env.reward()
+
+    def __str__(self, level=0):
+        ret = "    "*level
+        if self.action:
+            ret += f"{self.action:02d}: "
+        else:
+            ret += f"00: "
+        ret += repr(self.value) + "\n"
+        for child in self.children:
+            ret += child.__str__(level+1)
+        return ret
+
+    def __repr__(self):
+        return '<tree node representation>'
 
 class Monte_Carlo_Tree_Search():
     def __init__(self, size, ml_model):
@@ -193,22 +205,25 @@ class Monte_Carlo_Tree_Search():
         node = self.__find_node_from_state(env.state())
 
         while node is None:
-            self.run(15)
+            self.root.expansion()
             node = self.__find_node_from_state(env.state())
 
-        self.run(15, node)
+        # self.run(15, node)
+        if len(node.children) == 0 and not node.env.done:
+            node.expansion()
 
         best_child = None
         current_best_value = -inf
         for child in node.children:
+            child_value = child.rollout(self.get_weighted_move)
             if child.value > current_best_value:
                 best_child = child
-                current_best_value = child.value
+                current_best_value = child_value
 
         if best_child != None:
             if len(best_child.children) == 0 and not best_child.env.done:
                 best_child.expansion()
-            return best_child
+        return best_child
 
     # Makes a list of all states and a list of all move_weights for all expanded nodes in the tree
     def get_tree_data(self):
