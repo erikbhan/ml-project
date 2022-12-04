@@ -8,8 +8,8 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
-from src.CNN import CNN
-from src.MCTS import Monte_Carlo_Tree_Search
+from CNN import CNN
+from MCTS import Monte_Carlo_Tree_Search
 
 BOARD_SIZE = 5
 N_JOBS = 8
@@ -30,13 +30,20 @@ model.to(device=device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
-path = f"models/{N_GAMES}-games/"
+path = f"models/black_bias/{N_GAMES}-games"
+if not os.path.exists(path): os.makedirs(path)
 
-Parallel(n_jobs=N_JOBS)(delayed(generate_game)(x, y, None) for _ in range(1, N_GAMES))
+from warnings import filterwarnings
+filterwarnings("ignore")
+
+x, y = [], []
+print("Generating games...")
+Parallel(n_jobs=N_JOBS)(delayed(generate_game)(x, y, None) for _ in range(N_GAMES))
 for i in range(TRAINING_DEPTH):
     x, y = [], []
+    print("Generating games...")
     start_gen = time.time()
-    Parallel(n_jobs=N_JOBS)(delayed(generate_game)(x, y, model) for _ in range(1, N_GAMES))
+    Parallel(n_jobs=N_JOBS)(delayed(generate_game)(x, y, model) for _ in range(N_GAMES))
     stop_gen = time.time()
     for i in range(len(x)):
         inputs, labels = torch.tensor(x[i], device=device), torch.tensor(y[i], device=device)
@@ -47,5 +54,5 @@ for i in range(TRAINING_DEPTH):
         loss.backward()
         optimizer.step()
     print(f"Generating {N_GAMES} games on {N_JOBS} processes took {stop_gen - start_gen} seconds")
-    print(f"Saving model as 'models/{N_GAMES}-games/model-{i}.pth'")
-    torch.save(model.state_dict(), f"models/{N_GAMES}-games/model-{i}.pth")
+    print(f"Saving model as '{path}/model-{i}.pth'")
+    torch.save(model.state_dict(), path + f"/model-{i}.pth")
