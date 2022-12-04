@@ -116,10 +116,10 @@ class Monte_Carlo_Tree_Search():
         current_node = rollout_node
         while current_node != None:
             current_node.trials += 1
-            # if turn(self.env.state()) == BLACK:
-            #     current_node.value -= rollout_result
-            # if turn(self.env.state()) == WHITE:                
-            current_node.value += rollout_result
+            if turn(self.env.state()) == BLACK:
+                current_node.value -= rollout_result
+            if turn(self.env.state()) == WHITE:                
+                current_node.value += rollout_result
             current_node = current_node.parent
     
     # Find and return the leaf node with the highest UCB-score 
