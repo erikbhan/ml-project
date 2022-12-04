@@ -118,7 +118,7 @@ class Monte_Carlo_Tree_Search():
             current_node.trials += 1
             if turn(self.env.state()) == BLACK:
                 current_node.value -= rollout_result
-            if turn(self.env.state()) == WHITE:                
+            if turn(self.env.state()) == WHITE:
                 current_node.value += rollout_result
             current_node = current_node.parent
     
@@ -164,13 +164,17 @@ class Monte_Carlo_Tree_Search():
             run += 1
 
     # Explores plays one game
-    def run_game(self):
+    def run_game(self, node = None):
         # Run MCTS until a game is completed
-        selected_node = self.root
+        if not node:
+            node = self.root
+        selected_node = node
         run = 1
         while not selected_node.env.done:
             # print("run:", run)
-            selected_node = self.__selection()
+            selected_node = self.__selection(node)
+            if selected_node.env.done:
+                continue
 
             if selected_node.trials > 0:
                 # print("Expanding node")
@@ -182,8 +186,6 @@ class Monte_Carlo_Tree_Search():
             self.__back_propagation(selected_node, rollout_result)
             # print("Done:", selected_node.env.done)
             run += 1
-        # returns the node to allow for printing the game
-        return selected_node
     
     # searches the tree for a spesific state
     def __find_node_from_state(self, state, node: Node = None):
@@ -206,15 +208,14 @@ class Monte_Carlo_Tree_Search():
             self.root.expansion()
 
         node = self.__find_node_from_state(env.state())
-        self.run(15, node)
+        self.run(100, node)
 
         best_child = None
         current_best_value = -inf
         for child in node.children:
-            child_value = child.rollout(self.get_weighted_move)
             if child.value > current_best_value:
                 best_child = child
-                current_best_value = child_value
+                current_best_value = child.value
 
         if best_child != None:
             if len(best_child.children) == 0 and not best_child.env.done:
