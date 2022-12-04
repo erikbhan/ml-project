@@ -93,7 +93,7 @@ class Monte_Carlo_Tree_Search():
     def __get_move_weights(self, env : gym.Env):
         state = env.state()
         if self.ml_model is not None:
-            move_weights = self.ml_model.forward(torch.tensor(state, device=device)).cpu().detach().numpy()
+            move_weights = self.ml_model.forward(torch.tensor(state, device=device)).detach().cpu().numpy()
         else:
             move_weights = np.ones(ACTIONSPACE_LENGTH)
             for move in move_weights:
