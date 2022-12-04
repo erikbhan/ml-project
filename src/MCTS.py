@@ -202,15 +202,11 @@ class Monte_Carlo_Tree_Search():
 
     # Attempts to find the best move from the tree by searching for the state and finding the best child for that state
     def get_move_from_env(self, env):
-        node = self.__find_node_from_state(env.state())
-
-        while node is None:
+        if len(self.root.children) == 0:
             self.root.expansion()
-            node = self.__find_node_from_state(env.state())
 
-        # self.run(15, node)
-        if len(node.children) == 0 and not node.env.done:
-            node.expansion()
+        node = self.__find_node_from_state(env.state())
+        self.run(15, node)
 
         best_child = None
         current_best_value = -inf
