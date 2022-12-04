@@ -24,7 +24,7 @@ def generate_game(x, y, model):
 
 def generate_games(x, y, n_games, model):
     print(f"Generating {n_games} games")
-    Parallel(n_jobs=10)(delayed(generate_game)(x, y, model) for _ in range(1, n_games))
+    Parallel(n_jobs=8)(delayed(generate_game)(x, y, model) for _ in range(1, n_games))
 
 def train_model(model, criterion, optimizer, x, y):
     print("Training model")
@@ -43,7 +43,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 for i in range(5):
     x, y = [], []
-    if i == 0: generate_games(x, y, 10, None) # first iteration we don't have a trained model
-    else: generate_games(x, y, 10, model)
+    if i == 0: generate_games(x, y, 1000, None) # first iteration we don't have a trained model
+    else: generate_games(x, y, 1000, model)
     train_model(model, criterion, optimizer, x, y)
     torch.save(model.state_dict(), f"models/{i}-times.pth")
