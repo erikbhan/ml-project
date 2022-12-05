@@ -46,7 +46,7 @@ for i in range(TRAINING_DEPTH):
         y.extend(game[1])
 
     for j in range(len(x)):
-        inputs, labels = torch.tensor(x[i]).to(device), torch.tensor(y[i]).to(device)
+        inputs, labels = torch.tensor(x[i]).to(device), torch.tensor(y[i]).to(device).float()
         labels = F.softmax(labels)
         optimizer.zero_grad()
         outputs = model(inputs)
