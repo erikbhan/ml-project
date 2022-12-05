@@ -6,11 +6,11 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 from joblib import Parallel, delayed
-from src.CNN import CNN
-from src.MCTS import Monte_Carlo_Tree_Search
+from CNN import CNN
+from MCTS import Monte_Carlo_Tree_Search
 
 BOARD_SIZE = 5
-N_JOBS = 3
+N_JOBS = 6
 TRAINING_DEPTH = 10
 N_GAMES = 100
 N_ITERATIONS = 1000
@@ -46,7 +46,7 @@ for i in range(TRAINING_DEPTH):
         y.extend(game[1])
 
     for j in range(len(x)):
-        inputs, labels = torch.tensor(x[i]).to(device).float(), torch.tensor(y[i]).to(device).float()
+        inputs, labels = torch.tensor(x[i]).to(device), torch.tensor(y[i]).to(device)
         labels = F.softmax(labels)
         optimizer.zero_grad()
         outputs = model(inputs)
@@ -57,6 +57,7 @@ for i in range(TRAINING_DEPTH):
         predicted = outputs.max()
         total += labels.size(0)
         correct += predicted.eq(labels).sum().item()
+    
     train_loss = running_loss / len(x)
     accu = 100. * correct / total
     train_accu.append(accu)
